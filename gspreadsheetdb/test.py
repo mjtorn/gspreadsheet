@@ -49,10 +49,12 @@ def test_fail_create_table(db, name, fields):
 @dec_traceback
 def test_create_database(db, db_name):
     db.create(db_name)
+    print 'PASS - created db'
 
 @dec_traceback
 def test_create_table(db, name, fields):
     db.create_table(name, fields)
+    print 'PASS - created table'
 
 if __name__ == '__main__':
     ### TODO: Read credentials from user maybe?
