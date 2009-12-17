@@ -53,8 +53,9 @@ def test_create_database(db, db_name):
 
 @dec_traceback
 def test_create_table(db, name, fields):
-    db.create_table(name, fields)
+    table = db.create_table(name, fields)
     print 'PASS - created table'
+    return table
 
 if __name__ == '__main__':
     ### TODO: Read credentials from user maybe?
@@ -84,7 +85,10 @@ if __name__ == '__main__':
     test_create_database(db, 'Test Application')
 
     ## And we succeed in creating a table
-    test_create_table(db, 'user', fields)
+    table = test_create_table(db, 'user', fields)
+
+    ## And we insert into it
+    table.insert_into(uid=1, username='user1', password='pass1')
 
 
 # EOF

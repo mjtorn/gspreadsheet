@@ -116,5 +116,54 @@ class Table(object):
             i += 1
             self.client.ssclient.UpdateCell(1, i, column, self.key, self.worksheet_id)
 
+    def insert_into(self, **kwargs):
+        """Insert a new row
+        """
+
+        if not self.worksheet or not self.fields:
+            raise AttributeError('Create a worksheet first!')
+
+        row = Row(self)
+
+        row.create(**kwargs)
+
+        return row
+
+
+class Row(object):
+    """A spreadsheet row
+    """
+
+    def __init__(self, table):
+        """Construct row with references to table
+        """
+
+        self.table = table
+        self.db = table.db
+
+        ## Lots of shortcutting
+        # "Connection"
+        self.client = self.db.client
+        self.key = self.db.key
+
+        # Table object
+        self.worksheet = self.table.worksheet
+        self.worksheet_id = self.table.worksheet_id
+
+        # Addressing
+        self.fields = self.table.fields
+
+        ## And something to come later
+        self.row = None
+
+    def create(self, **kwargs):
+        """Inesrt data appropriately into row
+        """
+
+        for k, v in kwargs.items():
+            kwargs[k] = unicode(v)
+
+        self.row = self.client.ssclient.InsertRow(kwargs, self.key, wksht_id=self.worksheet_id)
+
 # EOF
 
