@@ -91,20 +91,30 @@ class Table(object):
         self.worksheet = None
         self.worksheet_id = None
 
+        # This must be populated by create, maybe in the future also by get
+        self.fields = None
+
     def create(self, name, fields):
         """Create remote table
         """
+
+        self.fields = fields
 
         ## Defaults
         row_count = 1
         col_count = len(fields)
 
-        worksheet = self.client.ssclient.AddWorksheet(name, row_count, col_count, self.key)
+        self.worksheet = self.client.ssclient.AddWorksheet(name, row_count, col_count, self.key)
 
         # Create our worksheet id
-        id_parts = worksheet.id.text.split('/')
+        id_parts = self.worksheet.id.text.split('/')
         self.worksheet_id = id_parts[-1]
 
+        ## Apparently Google Spreadsheet sucks enough to use row 1 as titles
+        i = 0
+        for column in self.fields:
+            i += 1
+            self.client.ssclient.UpdateCell(1, i, column, self.key, self.worksheet_id)
 
 # EOF
 
