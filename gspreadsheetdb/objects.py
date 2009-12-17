@@ -52,7 +52,7 @@ class Database(object):
 
         data_source = gdata.MediaSource(file_handle=data, content_type='text/csv', content_length=clen)
 
-        db = self.client.docsclient.UploadSpreadsheet(data_source, name)
+        db = self.client.docsclient.Upload(data_source, name, label='Spreadsheet')
 
         self.db = db
         
