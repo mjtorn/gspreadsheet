@@ -57,6 +57,13 @@ def test_create_table(db, name, fields):
     print 'PASS - created table'
     return table
 
+@dec_traceback
+def test_insert_into(table, **kwargs):
+    row = table.insert_into(**kwargs)
+    print 'PASS - inserted row'
+    return row
+
+
 if __name__ == '__main__':
     ### TODO: Read credentials from user maybe?
     
@@ -88,8 +95,10 @@ if __name__ == '__main__':
     table = test_create_table(db, 'user', fields)
 
     ## And we insert into it
-    table.insert_into(uid=1, username='user1', password='pass1')
+    row = test_insert_into(table, uid=1, username='user1', password='pass1')
 
+    ## Access something
+    assert row.data['uid'] == u'1', 'uid should be 1, as unicode'
 
 # EOF
 
