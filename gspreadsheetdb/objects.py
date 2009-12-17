@@ -155,6 +155,7 @@ class Row(object):
 
         ## And something to come later
         self.row = None
+        self.data = {}
 
     def create(self, **kwargs):
         """Inesrt data appropriately into row
@@ -164,6 +165,8 @@ class Row(object):
             kwargs[k] = unicode(v)
 
         self.row = self.client.ssclient.InsertRow(kwargs, self.key, wksht_id=self.worksheet_id)
+
+        self.data = kwargs
 
 # EOF
 
