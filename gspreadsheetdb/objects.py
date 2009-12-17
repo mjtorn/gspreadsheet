@@ -67,11 +67,44 @@ class Database(object):
         if not self.db:
             raise AttributeError('Create a database first!')
 
+        table = Table(self)
+
+        table.create(name, fields)
+
+        return table
+
+class Table(object):
+    """Table object
+    """
+
+    def __init__(self, db_instance):
+        """Create a Table instance for db, call create() to actually create it
+        """
+
+        self.db = db_instance
+
+        # Set some shortcuts for ease
+        self.client = self.db.client
+        self.key = self.db.key
+
+        # And this is to come
+        self.worksheet = None
+        self.worksheet_id = None
+
+    def create(self, name, fields):
+        """Create remote table
+        """
+
         ## Defaults
         row_count = 1
         col_count = len(fields)
 
-        self.client.ssclient.AddWorksheet(name, row_count, col_count, self.key)
+        worksheet = self.client.ssclient.AddWorksheet(name, row_count, col_count, self.key)
+
+        # Create our worksheet id
+        id_parts = worksheet.id.text.split('/')
+        self.worksheet_id = id_parts[-1]
+
 
 # EOF
 
