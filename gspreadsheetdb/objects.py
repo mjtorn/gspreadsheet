@@ -108,6 +108,24 @@ class Database(object):
 
         return table
 
+    def open_table(self, name):
+        """Retrieve table
+        """
+
+        try:
+            worksheet = [t for t in self.tables.entry if t.title.text == name][0]
+
+            ## Fake us a Table instance from that
+            table = Table(self)
+
+            table.worksheet = worksheet
+
+            # Create its worksheet id
+            id_parts = table.worksheet.id.text.split('/')
+            table.worksheet_id = id_parts[-1]
+        except IndexError:
+            raise AttributeError('Table "%s" not found' % name)
+
 
 class Table(object):
     """Table object
