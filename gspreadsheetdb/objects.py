@@ -27,6 +27,9 @@ class Database(object):
 
         self.client = client
 
+        ## Emtpy tables; set SpreadsheetsWorksheetsFeed
+        self.tables = None
+
         if key is None:
             ## Set by create() or open()
             self.db = None
@@ -36,6 +39,15 @@ class Database(object):
             self.key = None
         else:
             self.open(key)
+
+    def refresh_tables(self):
+        """Method that updates the db's tables (SpreadsheetsWorksheetsFeed)
+        """
+
+        if self.key is None:
+            raise AttributeError('Can not refresh tables on uninitialised db')
+
+        self.tables = self.client.ssclient.GetWorksheetsFeed(self.key)
 
     def create(self, name, data=',,,'):
         """Create a new spreadsheet-database identified by name, containing data from file ob/string
@@ -62,6 +74,9 @@ class Database(object):
         id_parts = self.db.id.text.split('/')
         self.key = id_parts[-1].replace('spreadsheet%3A', '')
 
+        ## Make sure internal book-keeping is ok
+        self.refresh_tables()
+
     def open(self, key):
         """Open an existing spreadsheet
         """
@@ -74,6 +89,9 @@ class Database(object):
         ## Set also the "db"
         self.db = self.client.docsclient.GetDocumentListEntry(base_uri)
 
+        ## Make sure internal book-keeping is ok
+        self.refresh_tables()
+
     def create_table(self, name, fields):
         """Create a new worksheet-table with given fields
         """
@@ -84,6 +102,9 @@ class Database(object):
         table = Table(self)
 
         table.create(name, fields)
+
+        ## Make sure internal book-keeping is ok
+        self.refresh_tables()
 
         return table
 
