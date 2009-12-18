@@ -21,19 +21,21 @@ class Database(object):
     """Spreadsheet-Database
     """
 
-    def __init__(self, client):
+    def __init__(self, client, key=None):
         """Constructor, client is an external client we can reuse
         """
 
         self.client = client
 
-        ## TODO: Maybe we could have the db name in the constructor
-        ## and do a get_or_create kind of number on it?
-        self.db = None
+        if key is None:
+            ## Set by create() or open()
+            self.db = None
 
-        ## This is an identifier for our spreadsheet, so tables can be added correctly
-        # Dependant on db
-        self.key = None
+            ## This is an identifier for our spreadsheet, so tables can be added correctly
+            # Dependant on db
+            self.key = None
+        else:
+            self.open(key)
 
     def create(self, name, data=',,,'):
         """Create a new spreadsheet-database identified by name, containing data from file ob/string
@@ -60,6 +62,18 @@ class Database(object):
         id_parts = self.db.id.text.split('/')
         self.key = id_parts[-1].replace('spreadsheet%3A', '')
 
+    def open(self, key):
+        """Open an existing spreadsheet
+        """
+
+        ## Set our key
+        self.key = key
+
+        base_uri = r'/feeds/documents/private/full/spredsheet%%3A%s' % self.key
+
+        ## Set also the "db"
+        self.db = self.client.docsclient.GetDocumentListEntry(base_uri)
+
     def create_table(self, name, fields):
         """Create a new worksheet-table with given fields
         """
@@ -72,6 +86,7 @@ class Database(object):
         table.create(name, fields)
 
         return table
+
 
 class Table(object):
     """Table object
