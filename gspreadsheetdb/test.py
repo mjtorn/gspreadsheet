@@ -78,6 +78,18 @@ def test_insert_into(table, **kwargs):
     print 'PASS - inserted row'
     return row
 
+@dec_traceback
+def test_open_empty_table(db, other_db, table_name):
+    table = db.create_table(table_name, ('foo', 'bar', 'baz'))
+    other_db.refresh_tables()
+    return other_db.open_table(table_name)
+
+@dec_traceback
+def test_insert_and_get_row(table):
+    table.insert_into(foo='This row is required')
+    r = table.get_row(1)
+    return r
+
 
 if __name__ == '__main__':
     ### TODO: Read credentials from user maybe?
@@ -128,6 +140,9 @@ if __name__ == '__main__':
     # Then a success
     table = test_open_table(other_db, 'user')
 
+    ## Harder-core test
+    t = test_open_empty_table(db, other_db, 'test')
+    r = test_insert_and_get_row(t)
 
 # EOF
 
