@@ -45,6 +45,15 @@ def test_fail_create_table(db, name, fields):
     except AttributeError, msg:
         print 'PASS - failed with "%s"' % msg
 
+@dec_traceback
+def test_fail_open_table(db, table_name):
+    try:
+        db.open_table(table_name)
+        print 'FAILED - did not die on AttributeError'
+        sys.exit(1)
+    except AttributeError, msg:
+        print 'PASS - failed with "%s"' % msg
+
 ### Tests that expect success
 @dec_traceback
 def test_create_database(db, db_name):
@@ -55,6 +64,12 @@ def test_create_database(db, db_name):
 def test_create_table(db, name, fields):
     table = db.create_table(name, fields)
     print 'PASS - created table'
+    return table
+
+@dec_traceback
+def test_open_table(db, table_name):
+    table = db.open_table(table_name)
+    print 'PASS - opened table'
     return table
 
 @dec_traceback
@@ -91,6 +106,8 @@ if __name__ == '__main__':
     ## And we succeed
     test_create_database(db, 'Test Application')
 
+    print 'Database key %s' % db.key
+
     ## And we succeed in creating a table
     table = test_create_table(db, 'user', fields)
 
@@ -99,6 +116,18 @@ if __name__ == '__main__':
 
     ## Access something
     assert row.data['uid'] == u'1', 'uid should be 1, as unicode'
+
+    ## Open a second connection and use it to manipulate
+    other_client = objects.Client(email, password)
+    # Reuse the db key from the previous instance
+    other_db = objects.Database(client, db.key)
+
+    ## Table opening
+    # First test a fail
+    test_fail_open_table(other_db, 'test_does_not_exist')
+    # Then a success
+    table = test_open_table(other_db, 'user')
+
 
 # EOF
 
