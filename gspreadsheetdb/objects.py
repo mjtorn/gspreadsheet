@@ -123,6 +123,18 @@ class Database(object):
             # Create its worksheet id
             id_parts = table.worksheet.id.text.split('/')
             table.worksheet_id = id_parts[-1]
+
+            ### TODO: Figure out how to get fields from empty (fields-only) table
+            ## Cheat the fields
+            #row = table.get_row(1)
+            
+            ## The return is a dictionary, with titles and gdata.spreadsheet.Custom instances
+            #table.fields = row.row.custom.keys()
+
+            ## Make sure this does not remain dangling anywhere
+            #del row
+
+            return table
         except IndexError:
             raise AttributeError('Table "%s" not found' % name)
 
@@ -172,16 +184,46 @@ class Table(object):
 
     def insert_into(self, **kwargs):
         """Insert a new row
+        Give the data as keyword arguments, eg insert_into(uid=1, username='foo')
         """
 
-        if not self.worksheet or not self.fields:
+        if not self.worksheet:
             raise AttributeError('Create a worksheet first!')
+
+        ## TODO: Figure out how to get fields out of an empty table!
+        #for key in kwargs.keys():
+        #    if not key in self.fields:
+        #        raise KeyError('Table does not accept key "%s"' % key)
 
         row = Row(self)
 
         row.create(**kwargs)
 
         return row
+
+    def get_row(self, row_num):
+        """Get a row by number; 1-indexed
+        """
+
+        qry = gdata.spreadsheet.service.ListQuery()
+        qry.start_index = unicode(row_num)
+        qry.max_results = '1'
+
+        res = self.client.ssclient.GetListFeed(self.key, wksht_id=self.worksheet_id, query=qry)
+
+        if len(res.entry):
+            row = Row(self)
+
+            ## Set the real data as if we were just created
+            row.row = res.entry[0]
+
+            ## Populate the data dictionary too
+            for label, bob in row.row.custom.items():
+                row.data[label] = bob.text
+
+            return row
+
+        raise ValueError('No such row')
 
 
 class Row(object):
