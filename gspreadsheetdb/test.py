@@ -90,6 +90,56 @@ def test_insert_and_get_row(table):
     r = table.get_row(1)
     return r
 
+@dec_traceback
+def test_user_manipulation(table):
+    table.insert_into(uid=2, username='user2', password='pass1')
+    print 'PASS - inserted user'
+    table.insert_into(uid=3, username='user3', password='pass3')
+    print 'PASS - inserted user'
+
+    users = table.filter()
+    assert len(users) == 3, '%d users, not 3?' % len(users)
+    print 'PASS - Has 3 users'
+
+    users = table.filter(reverse=True, orderby='uid', password='pass1')
+    assert len(users) == 2, '2 users should have pass1, not %d' % len(users)
+    print 'PASS - Retrieved 2 users'
+
+    specific_user = table.filter(uid=2)[0]
+
+    other_instance_user = users[0]
+
+    # Succeed update
+    specific_user.update(username='lol', password='pass2')
+    print 'PASS - First instance updated user'
+
+    # Race and fail
+    try:
+        other_instance_user.update(username='user2', password='pass2')
+        print 'FAILED should have failed'
+        sys.exit(1)
+    except objects.RequestError, e:
+        assert e.message['status'] == 409, 'Bad status %s' % e.message['status']
+        print 'PASS - Failed racy update'
+
+    # Correct username here
+    specific_user.update(username='user2')
+    print 'PASS - Updated user'
+
+@dec_traceback
+def test_ok_users(table):
+    users = table.filter(orderby='uid')
+
+    for i in xrange(len(users)):
+        n = i + 1
+        n = str(n)
+        user = users[i]
+        assert user.data['uid'] == n
+        assert user.data['username'] == 'user%s' % n
+        assert user.data['password'] == 'pass%s' % n
+
+        print 'PASS - user%s ok' % n
+
 
 if __name__ == '__main__':
     ### TODO: Read credentials from user maybe?
@@ -145,20 +195,10 @@ if __name__ == '__main__':
     r = test_insert_and_get_row(t)
 
     ## Test adding some users
-    table.insert_into(uid=2, username='user2', password='pass1')
-    table.insert_into(uid=3, username='user3', password='pass3')
+    test_user_manipulation(table)
 
-    users = table.filter()
-    assert len(users) == 3, '%d users, not 3?' % len(users)
-
-    users = table.filter(orderby='uid', password='pass1')
-    assert len(users) == 2, '2 users should have pass1, not %d' % len(users)
-
-    specific_user = table.filter(uid=2)[0]
-
-    other_instance_user = users[0]
-
-    print specific_user, other_instance_user
+    ## Assert stuff
+    test_ok_users(table)
 
 # EOF
 
