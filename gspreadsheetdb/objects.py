@@ -40,6 +40,12 @@ class Database(object):
         else:
             self.open(key)
 
+    def __str__(self):
+        return self.key
+
+    def __unicode__(self):
+        return u'%s' % self
+
     def refresh_tables(self):
         """Method that updates the db's tables (SpreadsheetsWorksheetsFeed)
         """
@@ -158,6 +164,12 @@ class Table(object):
 
         # This must be populated by create, maybe in the future also by get
         self.fields = None
+
+    def __unicode__(self):
+        return u'%s' % self
+
+    def __str__(self):
+        return self.title.text
 
     def create(self, name, fields):
         """Create remote table
@@ -295,6 +307,12 @@ class Row(object):
         ## And something to come later
         self.row = None
         self.data = {}
+
+    def __unicode__(self):
+        return unicode(self.data)
+
+    def __str__(self):
+        return str(self.data)
 
     def create(self, **kwargs):
         """Inesrt data appropriately into row
