@@ -329,9 +329,13 @@ class Row(object):
         """Update a row
         """
 
-        self.row = self.client.ssclient.UpdateRow(self.row, kwargs)
+        ## Anything not given is defaulted to empty in Google
+        data = self.data
+        data.update(kwargs)
 
-        self.data = kwargs
+        self.row = self.client.ssclient.UpdateRow(self.row, data)
+
+        self.data = data
 
 # EOF
 
