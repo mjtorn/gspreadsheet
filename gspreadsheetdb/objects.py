@@ -169,7 +169,7 @@ class Table(object):
         row_count = 1
         col_count = len(fields)
 
-        self.worksheet = self.client.ssclient.AddWorksheet(name, row_count, col_count, self.key)
+        self.worksheet = self.client.ssclient.AddWorksheet(name, row_count, col_count, self.db.key)
 
         # Create our worksheet id
         id_parts = self.worksheet.id.text.split('/')
@@ -179,7 +179,7 @@ class Table(object):
         i = 0
         for column in self.fields:
             i += 1
-            self.client.ssclient.UpdateCell(1, i, column, self.key, self.worksheet_id)
+            self.client.ssclient.UpdateCell(1, i, column, self.db.key, self.worksheet_id)
 
     def insert_into(self, **kwargs):
         """Insert a new row
@@ -208,7 +208,7 @@ class Table(object):
         qry.start_index = unicode(row_num)
         qry.max_results = '1'
 
-        res = self.client.ssclient.GetListFeed(self.key, wksht_id=self.worksheet_id, query=qry)
+        res = self.client.ssclient.GetListFeed(self.db.key, wksht_id=self.worksheet_id, query=qry)
 
         if len(res.entry):
             row = Row(self)
@@ -237,7 +237,7 @@ class Row(object):
 
         ## Lots of shortcutting
         # "Connection"
-        self.client = self.db.client
+        self.client = self.table.db.client
 
         # Table object
         self.worksheet = self.table.worksheet
@@ -257,7 +257,7 @@ class Row(object):
         for k, v in kwargs.items():
             kwargs[k] = unicode(v)
 
-        self.row = self.client.ssclient.InsertRow(kwargs, self.key, wksht_id=self.worksheet_id)
+        self.row = self.client.ssclient.InsertRow(kwargs, self.table.db.key, wksht_id=self.worksheet_id)
 
         self.data = kwargs
 
