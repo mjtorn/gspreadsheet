@@ -3,6 +3,10 @@
 import gdata.docs.service
 import gdata.spreadsheet.service
 
+# This is inconveniently different from gdata.spreadsheet.service.RequestError
+# Used in test cases for example
+from gdata.service import RequestError
+
 class Client(object):
     """Unified client wraps around both docs and spreadsheet client
     """
