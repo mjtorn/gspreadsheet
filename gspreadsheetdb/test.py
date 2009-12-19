@@ -140,6 +140,11 @@ def test_ok_users(table):
 
         print 'PASS - user%s ok' % n
 
+@dec_traceback
+def test_random_user(table):
+    user = table.get_random()
+
+    print 'PASS - got user %s' % user
 
 if __name__ == '__main__':
     ### TODO: Read credentials from user maybe?
@@ -199,6 +204,9 @@ if __name__ == '__main__':
 
     ## Assert stuff
     test_ok_users(table)
+
+    ## Random?
+    test_random_user(table)
 
 # EOF
 
