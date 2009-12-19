@@ -325,5 +325,13 @@ class Row(object):
 
         self.data = kwargs
 
+    def update(self, **kwargs):
+        """Update a row
+        """
+
+        self.row = self.client.ssclient.UpdateRow(self.row, kwargs)
+
+        self.data = kwargs
+
 # EOF
 
