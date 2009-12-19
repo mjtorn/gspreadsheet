@@ -151,7 +151,6 @@ class Table(object):
 
         # Set some shortcuts for ease
         self.client = self.db.client
-        self.key = self.db.key
 
         # And this is to come
         self.worksheet = None
@@ -235,12 +234,10 @@ class Row(object):
         """
 
         self.table = table
-        self.db = table.db
 
         ## Lots of shortcutting
         # "Connection"
         self.client = self.db.client
-        self.key = self.db.key
 
         # Table object
         self.worksheet = self.table.worksheet
