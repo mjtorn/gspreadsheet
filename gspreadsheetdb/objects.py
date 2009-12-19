@@ -286,6 +286,16 @@ class Table(object):
         ## To have django-like iterability even on empty results
         return []
 
+    def get_random(self, reverse=False, orderby=None, **kwargs):
+        """Get a random entry
+        """
+
+        from random import choice
+
+        rows = self.filter(reverse=reverse, orderby=orderby, **kwargs)
+
+        return choice(rows)
+
 
 class Row(object):
     """A spreadsheet row
