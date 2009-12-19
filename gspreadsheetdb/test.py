@@ -144,5 +144,21 @@ if __name__ == '__main__':
     t = test_open_empty_table(db, other_db, 'test')
     r = test_insert_and_get_row(t)
 
+    ## Test adding some users
+    table.insert_into(uid=2, username='user2', password='pass1')
+    table.insert_into(uid=3, username='user3', password='pass3')
+
+    users = table.filter()
+    assert len(users) == 3, '%d users, not 3?' % len(users)
+
+    users = table.filter(orderby='uid', password='pass1')
+    assert len(users) == 2, '2 users should have pass1, not %d' % len(users)
+
+    specific_user = table.filter(uid=2)[0]
+
+    other_instance_user = users[0]
+
+    print specific_user, other_instance_user
+
 # EOF
 
