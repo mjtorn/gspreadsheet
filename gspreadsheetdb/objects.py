@@ -224,6 +224,52 @@ class Table(object):
 
         raise ValueError('No such row')
 
+    def filter(self, reverse=False, orderby=None, **kwargs):
+        """Retrieve certain rows by some kind of filter in ascending order
+        reverse makes it descend, False here is also Google's default
+        """
+
+        qry = gdata.spreadsheet.service.ListQuery()
+
+        ## Support only equality for now in kwargs
+        # TODO: http://code.google.com/apis/spreadsheets/data/1.0/reference.html#list_Parameters
+        sq = ''
+        kwlist = []
+        for k, v in kwargs.items():
+            kwlist.append('%s == %s' % (k, v))
+
+        sq = ' and '.join(kwlist)
+
+        if sq:
+            qry.sq = sq
+
+        if reverse:
+            qry.reverse = 'true'
+
+        if orderby:
+            qry.orderby = 'column:%s' % orderby
+
+        res = self.client.ssclient.GetListFeed(self.db.key, wksht_id=self.worksheet_id, query=qry)
+
+        if len(res.entry):
+            rows = []
+            for e in res.entry:
+                row = Row(self)
+
+                ## Set the real data as if we were just created
+                row.row = e
+
+                ## Populate the data dictionary too
+                for label, bob in row.row.custom.items():
+                    row.data[label] = bob.text
+
+                rows.append(row)
+
+            return rows
+
+        ## To have django-like iterability even on empty results
+        return []
+
 
 class Row(object):
     """A spreadsheet row
