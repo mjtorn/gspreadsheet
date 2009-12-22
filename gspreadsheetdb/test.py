@@ -158,8 +158,7 @@ if __name__ == '__main__':
     ### Begin testing
 
     ## Set things up
-    client = objects.Client(email, password)
-    db = objects.Database(client)
+    db = objects.Database(email, password)
 
     ## We'll be creating a simple user database
     fields = ('uid', 'username', 'password')
@@ -184,10 +183,9 @@ if __name__ == '__main__':
     ## Access something
     assert row.data['uid'] == u'1', 'uid should be 1, as unicode'
 
-    ## Open a second connection and use it to manipulate
-    other_client = objects.Client(email, password)
+    ## Open a second connection
     # Reuse the db key from the previous instance
-    other_db = objects.Database(client, db.key)
+    other_db = objects.Database(email, password, key=db.key)
 
     ## Table opening
     # First test a fail
