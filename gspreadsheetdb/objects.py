@@ -25,11 +25,11 @@ class Database(object):
     """Spreadsheet-Database
     """
 
-    def __init__(self, client, key=None):
+    def __init__(self, email, password, key=None):
         """Constructor, client is an external client we can reuse
         """
 
-        self.client = client
+        self.client = Client(email, password)
 
         ## Emtpy tables; set SpreadsheetsWorksheetsFeed
         self.tables = None
